@@ -9,17 +9,17 @@ var CONFIG = {
   REDIRECT_URL: "https://example.com/thank-you",
 
   // Prize shown on the wheel and in the popup.
-  PRIZE_AMOUNT: "\u20B1200",
-  PRIZE_LABEL: "\u20B1200 Welcome Bonus",
+  PRIZE_AMOUNT: "\u20B1500",
+  PRIZE_LABEL: "\u20B1500 Welcome Bonus",
 
   // Copy shown on the page. Change freely.
   HERO_HEADLINE_PLAIN: "Spin & Win",
   HERO_HEADLINE_ACCENT: "Instantly",
-  HERO_SUB: "Every new player wins \u20B1200 \u2014 spin now to reveal your bonus.",
+  HERO_SUB: "Lets check your luck, shall we? — Spin Now.",
   SPIN_BUTTON_TEXT: "SPIN",
-  CLAIM_BUTTON_TEXT: "Claim \u20B1200 Now",
+  CLAIM_BUTTON_TEXT: "Claim \u20B1500 Now",
   MODAL_KICKER: "Congratulations!",
-  MODAL_MESSAGE: "You've won a \u20B1200 Welcome Bonus. Enter your details below to claim it instantly.",
+  MODAL_MESSAGE: "You've won a \u20B1500 Bonus. Enter your details below to claim it instantly.",
 
   // Number of wedges drawn on the wheel (purely visual — every
   // wedge always carries the same prize, see note below).
@@ -27,14 +27,10 @@ var CONFIG = {
 };
 
 /* ============================================================
-   NOTE ON PRIZE LOGIC
-   Every wedge on the wheel is labeled with the same prize
-   (CONFIG.PRIZE_AMOUNT). The wheel still spins to a genuinely
-   random landing position each time — that part is real
-   randomness, so the animation looks natural and never lands
-   in the exact same spot twice — but because every segment
-   shows the same prize, the result is always the ₱200 bonus.
-   This avoids implying odds/chances that don't actually exist.
+   WHEEL CONTENT
+   8 wedges total: 4 gift image wedges and 4 ₱500 wedges.
+   Gift images are expected at: gift1.png, gift2.png, gift3.png, gift4.png
+   in the same folder as index.html.
    ============================================================ */
 
 (function () {
@@ -42,6 +38,60 @@ var CONFIG = {
 
   var WEDGE_COLORS = ["#FF3B5C", "#FFD166", "#FF3B5C", "#FFD166", "#FF3B5C", "#FFD166", "#FF3B5C", "#FFD166"];
   var WEDGE_TEXT_COLORS = ["#FFFFFF", "#3A2500", "#FFFFFF", "#3A2500", "#FFFFFF", "#3A2500", "#FFFFFF", "#3A2500"];
+
+  // Alternating gift / ₱500 wedges. Images are placeholders until the
+  // user adds gift1.png through gift4.png beside the HTML file.
+  var WEDGE_CONTENT = [
+  { type: "text", text: "Try Again" },
+  { type: "text", text: "₱500" },
+
+  {
+    type: "image",
+    src: "img/iphone.png",
+    rotation: degreesToRadians(-90)
+  },
+
+  { type: "text", text: "₱500" },
+  { type: "text", text: "Try Again" },
+  { type: "text", text: "₱500" },
+
+  {
+    type: "image",
+    src: "img/laptop.png",
+    rotation: degreesToRadians(95)
+  },
+
+  { type: "text", text: "₱500" }
+];
+function degreesToRadians(degrees) {
+  return degrees * Math.PI / 180;
+}
+  var giftImages = {};
+
+WEDGE_CONTENT.forEach(function (item) {
+
+  if (item.type === "image") {
+
+    var fileName = item.src.split('/').pop();
+    var imageId = fileName.replace(/\.[^/.]+$/, "");
+
+    // Add ID to the item
+    item.id = imageId;
+
+    var img = new Image();
+
+    img.id = imageId;
+
+    img.onload = function () {
+      drawWheel(rotation);
+    };
+
+    img.src = item.src;
+
+    giftImages[imageId] = img;
+  }
+
+});
 
   var wheelWrap = document.getElementById("wheelWrap");
   var canvas = document.getElementById("wheel");
@@ -137,15 +187,54 @@ var CONFIG = {
       ctx.lineWidth = 2;
       ctx.stroke();
 
+      var content = WEDGE_CONTENT[i % WEDGE_CONTENT.length];
       ctx.save();
       ctx.rotate(start + segAngle / 2);
-      ctx.textAlign = "right";
-      ctx.textBaseline = "middle";
-      ctx.fillStyle = WEDGE_TEXT_COLORS[i % WEDGE_TEXT_COLORS.length];
-      var maxW = radius * 0.6;
-      var fontSize = fitFontSize(CONFIG.PRIZE_AMOUNT, maxW, 18);
-      ctx.font = "700 " + fontSize + "px 'Poppins', sans-serif";
-      ctx.fillText(CONFIG.PRIZE_AMOUNT, radius * 0.86, 0);
+
+      if (content.type === "image") {
+  var img = giftImages[content.id];
+
+  if (img && img.complete && img.naturalWidth > 0) {
+
+    var imgSize = radius * 0.32;
+
+    // Image position
+    var imageX = radius * 0.70;
+    var imageY = 0;
+
+    ctx.save();
+
+    // Move to image center
+    ctx.translate(imageX, imageY);
+
+    // Individual image rotation
+    ctx.rotate(content.rotation || 0);
+
+    // Circular clipping
+    // ctx.beginPath();
+    // ctx.arc(0, 0, imgSize / 2, 0, Math.PI * 2);
+    // ctx.clip();
+
+    // Draw image centered
+    ctx.drawImage(
+      img,
+      -imgSize / 2,
+      -imgSize / 2,
+      imgSize,
+      imgSize
+    );
+
+    ctx.restore();
+  }
+} else {
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = WEDGE_TEXT_COLORS[i % WEDGE_TEXT_COLORS.length];
+        var maxW = radius * 0.6;
+        var fontSize = fitFontSize(content.text, maxW, 20);
+        ctx.font = "700 " + fontSize + "px 'Poppins', sans-serif";
+        ctx.fillText(content.text, radius * 0.86, 0);
+      }
       ctx.restore();
     }
 
@@ -169,10 +258,11 @@ var CONFIG = {
 
     var segments = CONFIG.WHEEL_SEGMENTS;
     var segAngle = (Math.PI * 2) / segments;
-    // Genuinely random landing index — purely for a natural-looking
-    // animation. Every wedge shows the same prize, so this does not
-    // affect the outcome.
-    var targetIndex = Math.floor(Math.random() * segments);
+    // Genuinely random landing index for a natural-looking animation.
+    // The four ₱500 wedges represent the cash prize; gift wedges are
+    // visual gift slots and the claim modal remains ₱500.
+    var cashIndexes = [1, 3, 5, 7];
+    var targetIndex = cashIndexes[Math.floor(Math.random() * cashIndexes.length)];
     var jitter = (Math.random() - 0.5) * segAngle * 0.6;
     var desired = normalizeAngle(-Math.PI / 2 - (targetIndex + 0.5) * segAngle + jitter);
     var currentMod = normalizeAngle(rotation);
@@ -207,7 +297,7 @@ var CONFIG = {
 
   spinBtn.addEventListener("click", spin);
 
-  /* ---------- result: always the configured prize ---------- */
+  /* ---------- result: claim value is always ₱500 ---------- */
   function onSpinComplete() {
     spinBtn.disabled = true;
     spinHint.textContent = "";
