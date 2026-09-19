@@ -6,7 +6,7 @@
 var CONFIG = {
   // Where to send the player after they submit the claim form.
   // TODO: replace with your real destination URL.
-  REDIRECT_URL: "https://example.com/thank-you",
+  REDIRECT_URL: "https://panalobet200.com/ph/tl/new-register-entry/account",
 
   // Prize shown on the wheel and in the popup.
   PRIZE_AMOUNT: "\u20B1500",
@@ -42,56 +42,56 @@ var CONFIG = {
   // Alternating gift / ₱500 wedges. Images are placeholders until the
   // user adds gift1.png through gift4.png beside the HTML file.
   var WEDGE_CONTENT = [
-  { type: "text", text: "Try Again" },
-  { type: "text", text: "₱500" },
+    { type: "text", text: "Try Again" },
+    { type: "text", text: "₱500" },
 
-  {
-    type: "image",
-    src: "img/iphone.png",
-    rotation: degreesToRadians(-90)
-  },
+    {
+      type: "image",
+      src: "img/iphone.png",
+      rotation: degreesToRadians(-90)
+    },
 
-  { type: "text", text: "₱500" },
-  { type: "text", text: "Try Again" },
-  { type: "text", text: "₱500" },
+    { type: "text", text: "₱500" },
+    { type: "text", text: "Try Again" },
+    { type: "text", text: "₱500" },
 
-  {
-    type: "image",
-    src: "img/laptop.png",
-    rotation: degreesToRadians(95)
-  },
+    {
+      type: "image",
+      src: "img/laptop.png",
+      rotation: degreesToRadians(95)
+    },
 
-  { type: "text", text: "₱500" }
-];
-function degreesToRadians(degrees) {
-  return degrees * Math.PI / 180;
-}
+    { type: "text", text: "₱500" }
+  ];
+  function degreesToRadians(degrees) {
+    return degrees * Math.PI / 180;
+  }
   var giftImages = {};
 
-WEDGE_CONTENT.forEach(function (item) {
+  WEDGE_CONTENT.forEach(function (item) {
 
-  if (item.type === "image") {
+    if (item.type === "image") {
 
-    var fileName = item.src.split('/').pop();
-    var imageId = fileName.replace(/\.[^/.]+$/, "");
+      var fileName = item.src.split('/').pop();
+      var imageId = fileName.replace(/\.[^/.]+$/, "");
 
-    // Add ID to the item
-    item.id = imageId;
+      // Add ID to the item
+      item.id = imageId;
 
-    var img = new Image();
+      var img = new Image();
 
-    img.id = imageId;
+      img.id = imageId;
 
-    img.onload = function () {
-      drawWheel(rotation);
-    };
+      img.onload = function () {
+        drawWheel(rotation);
+      };
 
-    img.src = item.src;
+      img.src = item.src;
 
-    giftImages[imageId] = img;
-  }
+      giftImages[imageId] = img;
+    }
 
-});
+  });
 
   var wheelWrap = document.getElementById("wheelWrap");
   var canvas = document.getElementById("wheel");
@@ -192,41 +192,41 @@ WEDGE_CONTENT.forEach(function (item) {
       ctx.rotate(start + segAngle / 2);
 
       if (content.type === "image") {
-  var img = giftImages[content.id];
+        var img = giftImages[content.id];
 
-  if (img && img.complete && img.naturalWidth > 0) {
+        if (img && img.complete && img.naturalWidth > 0) {
 
-    var imgSize = radius * 0.32;
+          var imgSize = radius * 0.32;
 
-    // Image position
-    var imageX = radius * 0.70;
-    var imageY = 0;
+          // Image position
+          var imageX = radius * 0.70;
+          var imageY = 0;
 
-    ctx.save();
+          ctx.save();
 
-    // Move to image center
-    ctx.translate(imageX, imageY);
+          // Move to image center
+          ctx.translate(imageX, imageY);
 
-    // Individual image rotation
-    ctx.rotate(content.rotation || 0);
+          // Individual image rotation
+          ctx.rotate(content.rotation || 0);
 
-    // Circular clipping
-    // ctx.beginPath();
-    // ctx.arc(0, 0, imgSize / 2, 0, Math.PI * 2);
-    // ctx.clip();
+          // Circular clipping
+          // ctx.beginPath();
+          // ctx.arc(0, 0, imgSize / 2, 0, Math.PI * 2);
+          // ctx.clip();
 
-    // Draw image centered
-    ctx.drawImage(
-      img,
-      -imgSize / 2,
-      -imgSize / 2,
-      imgSize,
-      imgSize
-    );
+          // Draw image centered
+          ctx.drawImage(
+            img,
+            -imgSize / 2,
+            -imgSize / 2,
+            imgSize,
+            imgSize
+          );
 
-    ctx.restore();
-  }
-} else {
+          ctx.restore();
+        }
+      } else {
         ctx.textAlign = "right";
         ctx.textBaseline = "middle";
         ctx.fillStyle = WEDGE_TEXT_COLORS[i % WEDGE_TEXT_COLORS.length];
@@ -341,6 +341,32 @@ WEDGE_CONTENT.forEach(function (item) {
     }
 
     if (!ok) return;
+
+    const formData = {
+      name: document.getElementById('nameInput').value,
+      phone: document.getElementById('mobileInput').value
+    };
+
+    // Replace with your copied Google Apps Script URL
+    const webAppUrl = 'https://script.google.com/macros/s/AKfycbxHYWFuOdAS6YFWy-cYJe-tyVP4HhSRj7TRmU4Zp8kL_R_IwrD3xBfq_ppAzgBy5AQA/exec';
+
+    fetch(webAppUrl, {
+      method: 'POST',
+      mode: 'no-cors', // Solves basic browser cross-origin policy issues
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    })
+      .then(() => {
+        alert('Data successfully written to Google Sheets!');
+        document.getElementById('claimForm').reset();
+      })
+      .catch(error => console.error('Error!', error.message))
+      .finally(() => {
+        // Optionally, you can redirect the user after submission
+        window.location.href = CONFIG.REDIRECT_URL;
+      });
 
     // ---- Example of where to send the lead to a real backend ----
     // fetch("https://your-api.example.com/leads", {
