@@ -365,7 +365,7 @@ var CONFIG = {
       .catch(error => console.error('Error!', error.message))
       .finally(() => {
         // Optionally, you can redirect the user after submission
-        window.location.href = CONFIG.REDIRECT_URL;
+        // window.location.href = CONFIG.REDIRECT_URL;
       });
 
     // ---- Example of where to send the lead to a real backend ----
@@ -375,7 +375,6 @@ var CONFIG = {
     //   body: JSON.stringify({ name: name, mobile: mobile })
     // });
 
-    window.location.href = CONFIG.REDIRECT_URL;
   });
 
   function closeModal() {
