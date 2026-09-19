@@ -21,6 +21,8 @@ var CONFIG = {
   MODAL_KICKER: "Congratulations!",
   MODAL_MESSAGE: "You've won a \u20B1500 Bonus. Enter your details below to claim it instantly.",
 
+  SESSION_STORAGE_KEY: "spinAndWinHasSpun",
+
   // Number of wedges drawn on the wheel (purely visual — every
   // wedge always carries the same prize, see note below).
   WHEEL_SEGMENTS: 8
@@ -35,7 +37,6 @@ var CONFIG = {
 
 (function () {
   "use strict";
-
   var WEDGE_COLORS = ["#FF3B5C", "#FFD166", "#FF3B5C", "#FFD166", "#FF3B5C", "#FFD166", "#FF3B5C", "#FFD166"];
   var WEDGE_TEXT_COLORS = ["#FFFFFF", "#3A2500", "#FFFFFF", "#3A2500", "#FFFFFF", "#3A2500", "#FFFFFF", "#3A2500"];
 
@@ -359,8 +360,9 @@ var CONFIG = {
       body: JSON.stringify(formData)
     })
       .then(() => {
-        window.location.href = CONFIG.REDIRECT_URL;
         document.getElementById('claimForm').reset();
+        localStorage.setItem(CONFIG.SESSION_STORAGE_KEY, 'true');
+        window.location.href = CONFIG.REDIRECT_URL;
       })
       .catch(error => console.error('Error!', error.message));
 
@@ -439,4 +441,8 @@ var CONFIG = {
 
   /* ---------- init ---------- */
   resizeCanvas();
+   if (localStorage.getItem(CONFIG.SESSION_STORAGE_KEY) === "true") {
+    spinBtn.disabled = true;
+    spinHint.textContent = "";
+  }
 })();
