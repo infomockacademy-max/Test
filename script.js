@@ -359,14 +359,10 @@ var CONFIG = {
       body: JSON.stringify(formData)
     })
       .then(() => {
-        alert('Data successfully written to Google Sheets!');
+        window.location.href = CONFIG.REDIRECT_URL;
         document.getElementById('claimForm').reset();
       })
-      .catch(error => console.error('Error!', error.message))
-      .finally(() => {
-        // Optionally, you can redirect the user after submission
-        // window.location.href = CONFIG.REDIRECT_URL;
-      });
+      .catch(error => console.error('Error!', error.message));
 
     // ---- Example of where to send the lead to a real backend ----
     // fetch("https://your-api.example.com/leads", {
